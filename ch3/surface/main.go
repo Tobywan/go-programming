@@ -11,11 +11,11 @@ const (
 	cells         = 100                 // number of grid cells
 	xyrange       = 30.0                // axis reanges ( -xyrange..+xyrange)
 	xyscale       = width / 2 / xyrange // pixels per x or y
-	zscale        = height * 0.4
-	angle         = math.Pi / 6
+	zscale        = height * 0.1
+	angle         = math.Pi / 5
 )
 
-var sin30, cos30 = math.Sin(angle), math.Cos(angle)
+var sinAng, cosAng = math.Sin(angle), math.Cos(angle)
 
 func main() {
 	fmt.Printf("<svg xmlns='http://www.w3.org/2000/svg' "+
@@ -41,15 +41,19 @@ func corner(i, j int) (float64, float64) {
 	x := xyrange * (float64(i)/cells - 0.5)
 	y := xyrange * (float64(j)/cells - 0.5)
 
-	z := f(x, y)
+	z := curvy(x, y, 3)
 
 	// isometric projection onto 2d canvas
-	sx := width/2 + (x-y)*cos30*xyscale
-	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
+	sx := width/2 + (x-y)*cosAng*xyscale
+	sy := height/2 + (x+y)*sinAng*xyscale - z*zscale
 	return sx, sy
 }
 
-func f(x, y float64) float64 {
-	r := math.Hypot(x, y)
+func curvy(x, y, scale float64) float64 {
+	r := scale * math.Hypot(x, y)
 	return math.Sin(r) / r
+}
+
+func zero(x, y float64) float64 {
+	return 0
 }
