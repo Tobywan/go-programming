@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+/*
 const (
 	width, height = 1200, 640           // canvas size
 	cells         = 200                 // number of grid cells
@@ -16,8 +17,47 @@ const (
 	zscale        = height * 0.1
 	angle         = math.Pi / 5
 )
+*/
 
-var sinAng, cosAng = math.Sin(angle), math.Cos(angle)
+type surfaceFunc func(float64, float64, float64) float64
+
+var funcs = map[string]surfaceFunc{
+	"eggbox": eggbox,
+	"curvy":  curvy,
+	"saddle": saddle,
+}
+
+type parameters struct {
+	width       float64
+	height      float64
+	cells       int
+	xyrange     float64
+	zscalar     float64
+	plainscalar float64
+	sinAngle    float64
+	cosAngle    float64
+	f           surfaceFunc
+}
+
+func (p *parameters) zscale() float64 {
+	return float64(p.height) * p.zscalar
+}
+
+func (p *parameters) xyscale() float64 {
+	return float64(p.width) / 2.0 / p.xyrange
+}
+
+//var sinAng, cosAng = math.Sin(angle), math.Cos(angle)
+var params = parameters{width: 300,
+	height:      640,
+	cells:       200,
+	xyrange:     30.0,
+	zscalar:     0.4,
+	plainscalar: 1,
+	sinAngle:    math.Sin(math.Pi / 6),
+	cosAngle:    math.Cos(math.Pi / 6),
+	f:           curvy,
+}
 
 type point struct {
 	x, y, z float64
@@ -26,8 +66,8 @@ type point struct {
 // plot returns a canvas point. This is a 2d plot so ignore the z component
 func (p *point) plot() (plot point) {
 	// isometric projection onto 2d canvas
-	plot.x = width/2 + (p.x-p.y)*cosAng*xyscale
-	plot.y = height/2 + (p.x+p.y)*sinAng*xyscale - p.z*zscale
+	plot.x = params.width/2 + (p.x-p.y)*params.cosAngle*params.xyscale()
+	plot.y = params.height/2 + (p.x+p.y)*params.sinAngle*params.xyscale() - p.z*params.zscale()
 	return plot
 }
 
@@ -73,11 +113,27 @@ func (p *poly) toSVG(relHeight float64) string {
 	//debug(fmt.Sprintf("relHeight: %g", relHeight))
 
 	pp := p.plot()
-	c := color.HSL{H: (1 - relHeight) * 0.7, S: 1, L: 0.5}.ToHTML()
+	c := color.HSL{H: (1 - relHeight) * 0.80, S: 1, L: 0.5}.ToHTML()
 	return fmt.Sprintf("<polygon points='%g,%g %g,%g %g,%g %g,%g' "+
 		"style='stroke: grey; fill: #%s; stroke-width: 0.3' "+
 		"/>\n",
 		pp.nw.x, pp.nw.y, pp.ne.x, pp.ne.y, pp.se.x, pp.se.y, pp.sw.x, pp.sw.y, c)
+}
+
+// DrawPlot creates a 3d plot based on these params:
+func DrawPlot(width, height, cells int,
+	xyrange, zscalar, plainscalar float64,
+	function string) {
+
+	params.width = float64(width)
+	params.height = float64(height)
+	params.xyrange = xyrange
+	params.zscalar = zscalar
+	f := funcs[function]
+	if f != nil {
+		params.f = f
+	}
+
 }
 
 // loop over points
@@ -85,7 +141,7 @@ func (p *poly) toSVG(relHeight float64) string {
 //			ax, ay, bx, by, cx, cy, dx, dy)
 func main() {
 	fmt.Printf("<svg xmlns='http://www.w3.org/2000/svg' "+
-		"width='%d' height='%d'>", width, height)
+		"width='%d' height='%d'>", int(params.width), int(params.height))
 
 	polys, minZ, maxZ := getCorners()
 
@@ -108,8 +164,8 @@ func debug(msg string) {
 func getCorners() (polys []poly, minZ float64, maxZ float64) {
 
 	debug(fmt.Sprintf("min: %g, max: %g", minZ, maxZ))
-	for i := 0; i < cells; i++ {
-		for j := 0; j < cells; j++ {
+	for i := 0; i < params.cells; i++ {
+		for j := 0; j < params.cells; j++ {
 			//				ax, ay := corner(i+1, j)
 			//				bx, by := corner(i, j)
 			//				cx, cy := corner(i, j+1)
@@ -132,11 +188,11 @@ func getCorners() (polys []poly, minZ float64, maxZ float64) {
 
 func corner(i, j int) point {
 	// Find the point at corner of cell
-	x := xyrange * (float64(i)/cells - 0.5)
-	y := xyrange * (float64(j)/cells - 0.5)
+	x := params.xyrange * (float64(i)/float64(params.cells) - 0.5)
+	y := params.xyrange * (float64(j)/float64(params.cells) - 0.5)
 
 	//z := curvy(x, y, 1.5)
-	z := eggbox(x, y, 1.5)
+	z := params.f(x, y, params.plainscalar)
 	//z := saddle(x, y, 0.11)
 	return point{x, y, z}
 }
