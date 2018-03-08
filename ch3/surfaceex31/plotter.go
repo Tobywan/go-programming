@@ -1,11 +1,13 @@
-// Surface computes an SVG rendering of a 3-D surface function
-package main
+// Package surfaceex31 computes an SVG rendering of a 3-D surface function
+package surfaceex31
 
 import (
 	"fmt"
-	"github.com/gerow/go-color"
+	"io"
 	"math"
 	"os"
+
+	"github.com/gerow/go-color"
 )
 
 /*
@@ -121,7 +123,11 @@ func (p *poly) toSVG(relHeight float64) string {
 }
 
 // DrawPlot creates a 3d plot based on these params:
-func DrawPlot(width, height, cells int,
+//	width, height = 1200, 640           // canvas size
+//	cells         = 200                 // number of grid cells
+//	xyrange       = 30.0                // axis reanges ( -xyrange..+xyrange)
+//	xyscale       = width / 2 / xyrange // pixels per x or y
+func DrawPlot(w io.Writer, width, height, cells int,
 	xyrange, zscalar, plainscalar float64,
 	function string) {
 
@@ -129,18 +135,12 @@ func DrawPlot(width, height, cells int,
 	params.height = float64(height)
 	params.xyrange = xyrange
 	params.zscalar = zscalar
-	f := funcs[function]
-	if f != nil {
-		params.f = f
+	fu := funcs[function]
+	if fu != nil {
+		params.f = fu
 	}
 
-}
-
-// loop over points
-//		fmt.Printf
-//			ax, ay, bx, by, cx, cy, dx, dy)
-func main() {
-	fmt.Printf("<svg xmlns='http://www.w3.org/2000/svg' "+
+	fmt.Fprintf(w, "<svg xmlns='http://www.w3.org/2000/svg' "+
 		"width='%d' height='%d'>", int(params.width), int(params.height))
 
 	polys, minZ, maxZ := getCorners()
@@ -151,12 +151,16 @@ func main() {
 	for _, p := range polys {
 		//		debug(fmt.Sprintf("delta: %g", delta))
 		relHeight := (p.meanZ() - minZ) / delta
-		fmt.Println(p.toSVG(relHeight))
+		fmt.Fprintln(w, p.toSVG(relHeight))
 	}
 
-	fmt.Println("</svg>")
+	fmt.Fprintln(w, "</svg>")
+
 }
 
+// loop over points
+//		fmt.Printf
+//			ax, ay, bx, by, cx, cy, dx, dy)
 func debug(msg string) {
 	fmt.Fprintf(os.Stderr, "%s\n", msg)
 }
