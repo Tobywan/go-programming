@@ -1,4 +1,4 @@
-package main
+package ch3
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ func TestBasename(t *testing.T) {
 		{"", ""},
 	}
 	for _, test := range tests {
-		got := basename(test.path)
+		got := Basename(test.path)
 		if got != test.want {
 			t.Errorf("basename(%s)=%s, want %s", test.path, got, test.want)
 		}

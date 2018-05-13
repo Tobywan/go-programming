@@ -1,13 +1,11 @@
-package main
+package ch3
 
 import (
 	"strings"
 )
 
-func main() {
-	basename("")
-}
-func basename(s string) string {
+// Basename finds the last part of a path, minus any extension
+func Basename(s string) string {
 	s = s[strings.LastIndex(s, "/")+1:]
 
 	if dotpos := strings.LastIndex(s, "."); dotpos >= 0 {
