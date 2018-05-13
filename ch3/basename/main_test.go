@@ -13,6 +13,7 @@ func TestBasename(t *testing.T) {
 		{"c.d.go", "c.d"},
 		{"abc", "abc"},
 		{".test", ""},
+		{"", ""},
 	}
 	for _, test := range tests {
 		got := basename(test.path)

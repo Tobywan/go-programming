@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-
+	basename("")
 }
 func basename(s string) string {
 	s = s[strings.LastIndex(s, "/")+1:]
