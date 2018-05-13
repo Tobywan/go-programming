@@ -4,6 +4,9 @@ import (
 	"strings"
 )
 
+func main() {
+
+}
 func basename(s string) string {
 	s = s[strings.LastIndex(s, "/")+1:]
 
