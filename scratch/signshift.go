@@ -1,16 +1,8 @@
-package main
+package scratch
 
 import (
 	"fmt"
 )
-
-func main() {
-	signTest(255, -127)
-	signTest(255, -1)
-	//	shiftInt(1)
-	//	shiftInt(-96)
-	//	shiftInt(-1)
-}
 
 func shiftInt(x int8) {
 	fmt.Printf("Testing %d\n", x)
