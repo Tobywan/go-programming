@@ -28,9 +28,9 @@ func (c *Canvas) setPixel(x, y int, col color.Color) {
 	c.pixels[x][y] = col
 }
 
-// plotMandelbrot plots those points in the passed in angand diagram that lie within
+// PlotMandelbrot plots those points in the passed in angand diagram that lie within
 // the mandelbrot set
-func (c *Canvas) plotMandelbrot(a *Argand) {
+func (c *Canvas) PlotMandelbrot(a *Argand) {
 	for x := 0; x < c.width; x++ {
 		for y := 0; y < c.height; y++ {
 			z := mapComplex(x, y, *c, *a)
@@ -40,7 +40,8 @@ func (c *Canvas) plotMandelbrot(a *Argand) {
 	}
 }
 
-func (c *Canvas) png(w io.Writer) {
+// PNG exports the canvas to PNG
+func (c *Canvas) PNG(w io.Writer) {
 	img := image.NewRGBA(image.Rect(0, 0, c.width, c.height))
 	for y := 0; y < c.height; y++ {
 		for x := 0; x < c.width; x++ {
@@ -50,7 +51,8 @@ func (c *Canvas) png(w io.Writer) {
 	png.Encode(w, img)
 }
 
-func newCanvas(height, width int) *Canvas {
+// NewCanvas creates  new canvas for drawing on
+func NewCanvas(height, width int) *Canvas {
 	c := Canvas{height, width, nil}
 	c.pixels = make(columns, width)
 	for i := 0; i < width; i++ {
@@ -65,14 +67,17 @@ type Argand struct {
 	maxReal float64
 	minImag float64
 	maxImag float64
+	centre  complex128
 }
 
-func newArgand(centre complex128, height float64, width float64) *Argand {
+// NewArgand creates a new argand diagram area
+func NewArgand(centre complex128, height float64, width float64) *Argand {
 	a := Argand{
 		minReal: real(centre) - width/2.0,
 		maxReal: real(centre) + width/2.0,
 		minImag: imag(centre) - height/2.0,
 		maxImag: imag(centre) + height/2.0,
+		centre:  centre,
 	}
 	return &a
 }
@@ -89,7 +94,7 @@ func mapComplex(x, y int, c Canvas, a Argand) complex128 {
 	scalex := (a.maxReal - a.minReal) / float64(c.width)
 	scaley := (a.maxImag - a.minImag) / float64(c.height)
 
-	return complex((float64(cx) * scalex), (float64(cy) * scaley))
+	return complex((float64(cx)*scalex)+real(a.centre), (float64(cy)*scaley)+imag(a.centre))
 
 }
 
