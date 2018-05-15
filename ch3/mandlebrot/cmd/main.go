@@ -13,7 +13,7 @@ import (
 func main() {
 
 	c := mandlebrot.NewCanvas(1024, 1024)
-	a := mandlebrot.NewArgand(-0.8+0i, 0.2, 0.2)
+	a := mandlebrot.NewArgand(-1.8+0i, 0.2, 0.2)
 
 	c.PlotMandelbrot(a)
 	c.PNG(os.Stdout)
