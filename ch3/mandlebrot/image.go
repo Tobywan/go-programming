@@ -41,18 +41,25 @@ func (c *Canvas) setPixel(p pixel) {
 	c.pixels[p.x][p.y] = p.col
 }
 
+var tokens chan struct{}
+
 // PlotMandelbrotChan plots those points in the passed in angand diagram that lie within
-// the mandelbrot set using nChans channels
+// the mandelbrot set using nChans  concurrent channels
+// NO IMPROVEMENT WHEN USING CHANNELS!
 func (c *Canvas) PlotMandelbrotChan(a *Argand, nChans int) {
 	pixels := make(chan pixel)
+	tokens = make(chan struct{}, nChans)
+
 	var wg sync.WaitGroup // number of go routines in progress
 	for x := 0; x < c.width; x++ {
 		for y := 0; y < c.height; y++ {
 			wg.Add(1)
 			go func(x, y int) {
 				defer wg.Done()
+				tokens <- struct{}{} // acquire token
 				z := mapComplex(x, y, *c, *a)
 				col := mandlebrot(z)
+				<-tokens // release it
 				pixels <- pixel{x, y, col}
 			}(x, y)
 

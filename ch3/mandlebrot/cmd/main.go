@@ -7,6 +7,10 @@ import (
 	"github.com/tobywan/go-programming/ch3/mandlebrot"
 )
 
+// main takes 4 arguments, the first two are the centre of the
+// argnd, and the last two are height and width
+// e.g.
+// $ ./cmd 0 0 4 4 > ~/junk/wendy.png
 func main() {
 	var reZ, imZ, h, w float64
 
@@ -18,7 +22,7 @@ func main() {
 	c := mandlebrot.NewCanvas(1024, 1024)
 	a := mandlebrot.NewArgand(complex(reZ, imZ), h, w)
 
-	c.PlotMandelbrotChan(a, 8)
+	c.PlotMandelbrot(a)
 	c.PNG(os.Stdout)
 
 }

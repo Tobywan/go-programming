@@ -10,7 +10,7 @@ func BenchmarkPlotMandelbrotChan(b *testing.B) {
 		c := NewCanvas(1024, 1024)
 		a := NewArgand(-1.8+0i, 0.5, 0.5)
 
-		c.PlotMandelbrotChan(a, 8)
+		c.PlotMandelbrotChan(a, 6)
 	}
 }
 
