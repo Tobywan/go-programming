@@ -1,19 +1,25 @@
 package mandlebrot
 
 import (
-	"bytes"
 	"reflect"
 	"testing"
 )
 
-func BenchmarkPNG(b *testing.B) {
+func BenchmarkPlotMandelbrotChan(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		c := NewCanvas(1024, 1024)
 		a := NewArgand(-1.8+0i, 0.5, 0.5)
-		var b bytes.Buffer
+
+		c.PlotMandelbrotChan(a, 8)
+	}
+}
+
+func BenchmarkPlotMandelbrot(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		c := NewCanvas(1024, 1024)
+		a := NewArgand(-1.8+0i, 0.5, 0.5)
 
 		c.PlotMandelbrot(a)
-		c.PNG(&b)
 	}
 }
 

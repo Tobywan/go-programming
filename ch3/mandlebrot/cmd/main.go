@@ -18,7 +18,7 @@ func main() {
 	c := mandlebrot.NewCanvas(1024, 1024)
 	a := mandlebrot.NewArgand(complex(reZ, imZ), h, w)
 
-	c.PlotMandelbrot(a)
+	c.PlotMandelbrotChan(a, 8)
 	c.PNG(os.Stdout)
 
 }

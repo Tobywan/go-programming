@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"io"
 	"math/cmplx"
+	"sync"
 )
 
 type column []color.Color
@@ -20,12 +21,53 @@ type Canvas struct {
 	pixels columns
 }
 
+type pixel struct {
+	x   int
+	y   int
+	col color.Color
+}
+
 func (c *Canvas) pixel(x, y int) color.Color {
 	return c.pixels[x][y]
 }
 
-func (c *Canvas) setPixel(x, y int, col color.Color) {
+func (c *Canvas) setColor(x, y int, col color.Color) {
+
 	c.pixels[x][y] = col
+}
+
+func (c *Canvas) setPixel(p pixel) {
+
+	c.pixels[p.x][p.y] = p.col
+}
+
+// PlotMandelbrotChan plots those points in the passed in angand diagram that lie within
+// the mandelbrot set using nChans channels
+func (c *Canvas) PlotMandelbrotChan(a *Argand, nChans int) {
+	pixels := make(chan pixel)
+	var wg sync.WaitGroup // number of go routines in progress
+	for x := 0; x < c.width; x++ {
+		for y := 0; y < c.height; y++ {
+			wg.Add(1)
+			go func(x, y int) {
+				defer wg.Done()
+				z := mapComplex(x, y, *c, *a)
+				col := mandlebrot(z)
+				pixels <- pixel{x, y, col}
+			}(x, y)
+
+		}
+	}
+	// closer
+	go func() {
+		wg.Wait()
+		close(pixels)
+	}()
+
+	for p := range pixels {
+		c.setPixel(p)
+	}
+
 }
 
 // PlotMandelbrot plots those points in the passed in angand diagram that lie within
@@ -35,7 +77,7 @@ func (c *Canvas) PlotMandelbrot(a *Argand) {
 		for y := 0; y < c.height; y++ {
 			z := mapComplex(x, y, *c, *a)
 			col := mandlebrot(z)
-			c.setPixel(x, y, col)
+			c.setColor(x, y, col)
 		}
 	}
 }
