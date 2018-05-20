@@ -21,10 +21,12 @@ func sum256(in *[]byte) []byte {
 	hash := sha256.Sum256(*in)
 	return hash[:]
 }
+
 func sum384(in *[]byte) []byte {
 	hash := sha512.Sum384(*in)
 	return hash[:]
 }
+
 func sum512(in *[]byte) []byte {
 	hash := sha512.Sum512(*in)
 	return hash[:]
