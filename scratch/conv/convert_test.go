@@ -4,6 +4,13 @@ import (
 	"testing"
 )
 
+// Does not compile
+// func TestBigINtToBytes(t *testing.T) {
+// 	n := 12345678901234567890
+// 	b := []byte(n)
+// 	t.Logf("b: %v", b)
+
+// }
 func TestCompile(t *testing.T) {
 	var i = 1
 	var i32 int32 = 2
