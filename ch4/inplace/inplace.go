@@ -1,7 +1,7 @@
 package inplace
 
-// nonEmpty modifies the slice inplace to squash empty strings
-func nonEmpty(strings []string) []string {
+// nonEmpty1 modifies the slice inplace to squash empty strings
+func nonEmpty1(strings []string) []string {
 	i := 0
 	for _, s := range strings {
 		if s != "" {
@@ -48,4 +48,23 @@ func reverse(s []string) []string {
 		s[i], s[j] = s[j], s[i]
 	}
 	return s
+}
+
+// rotate shift the elements to the left by n and puts the over flowed ones back on the right
+func rotate(s []string, n int) []string {
+	l := len(s)
+	if l <= 1 {
+		return s
+	}
+
+	m := n % l // Deal with n  > l
+	if m == 0 {
+		return s
+	}
+
+	r := s[:0]
+	r = append(r, reverse(s[0:m])...)
+	r = append(r, reverse(s[m:])...)
+	r = reverse(r)
+	return r
 }
