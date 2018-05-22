@@ -37,3 +37,15 @@ func nonEmpty3(strings []string) []string {
 	}
 	return strings[:n]
 }
+
+// reverse does an in place reversal of a slice
+func reverse(s []string) []string {
+	l := len(s)
+	if l <= 1 {
+		return s
+	}
+	for i, j := 0, l-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+	return s
+}

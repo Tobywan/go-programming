@@ -51,3 +51,36 @@ func TestNonEmpty(t *testing.T) {
 	}
 
 }
+
+func TestReverse(t *testing.T) {
+	tests := []struct {
+		in   []string
+		want []string
+	}{
+		{
+			[]string{""},
+			[]string{},
+		},
+		{
+			[]string{"a"},
+			[]string{"a"},
+		},
+		{
+			[]string{"5", "4", "3", "2", "1"},
+			[]string{"1", "2", "3", "4", "5"},
+		},
+		{
+			[]string{"6", "5", "4", "3", "2", "1"},
+			[]string{"1", "2", "3", "4", "5", "6"},
+		},
+	}
+
+	for _, test := range tests {
+		got := nonEmpty3(test.in)
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("nonEmpty3(%q)=%q, want:%q", test.in, got, test.want)
+		}
+	}
+
+}
