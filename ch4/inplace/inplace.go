@@ -1,5 +1,10 @@
 package inplace
 
+import (
+	"unicode"
+	"unicode/utf8"
+)
+
 // nonEmpty1 modifies the slice inplace to squash empty strings
 func nonEmpty1(strings []string) []string {
 	i := 0
@@ -87,7 +92,7 @@ func rotateOnce(s []string, n int) []string {
 }
 
 // dedupe removes adjacent dupicates in a string slice
-//
+// EX 4.5
 func dedupe(strings []string) []string {
 
 	if len(strings) <= 1 {
@@ -104,4 +109,59 @@ func dedupe(strings []string) []string {
 		}
 	}
 	return strings[:i]
+}
+
+// asciispaceRange converts runs of unicode spaces in a byte slice into a single
+// ascii space
+// EX 4.6
+func asciispaceRange(b []byte) []byte {
+	// consider the bytes as a range of runes
+	ret := make([]byte, len(b))
+	pos := 0
+	spaces := false // true for consecutive spaces
+	for _, r := range string(b) {
+		if unicode.IsSpace(r) {
+			if spaces {
+				continue
+			}
+			spaces = true
+			r = ' '
+		} else {
+			spaces = false
+		}
+		n := utf8.EncodeRune(ret[pos:], r)
+		pos += n
+	}
+
+	return ret[:pos]
+
+}
+
+// asciispaceInplace converts runs of unicode spaces in a byte slice into a single
+// ascii space
+// EX 4.6
+func asciispaceInplace(b []byte) []byte {
+	// consider the bytes as a range of runes
+	l := len(b)
+
+	spaces := false // true for consecutive spaces
+	posOut := 0
+	for posIn := 0; posIn < l; {
+		r, n := utf8.DecodeRune(b[posIn:])
+		posIn += n
+		if unicode.IsSpace(r) {
+			if spaces {
+				continue
+			}
+			spaces = true
+			r = ' '
+		} else {
+			spaces = false
+		}
+		m := utf8.EncodeRune(b[posOut:], r)
+		posOut += m
+	}
+
+	return b[:posOut]
+
 }

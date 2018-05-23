@@ -3,6 +3,7 @@ package inplace
 import (
 	"reflect"
 	"testing"
+	"unicode"
 )
 
 func BenchmarkAssign(b *testing.B) {
@@ -351,6 +352,73 @@ func TestDeDupe1(t *testing.T) {
 
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("dedupe(%q)=%q, want:%q", test.in, got, test.want)
+		}
+	}
+
+}
+
+func TestIsSpace(t *testing.T) {
+	s := "\u0020\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000"
+	for _, r := range s {
+		t.Logf("%U - %t", r, unicode.IsSpace(r))
+	}
+}
+
+func BenchmarkAsciispaceRange(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		in := []byte("X\u0020\u00A0\u1680\u2000\u2001\u2002X\u2003X\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205FX\u3000X")
+		asciispaceRange(in)
+	}
+}
+func BenchmarkAsciispaceInplace(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		in := []byte("X\u0020\u00A0\u1680\u2000\u2001\u2002X\u2003X\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205FX\u3000X")
+		asciispaceInplace(in)
+	}
+}
+func TestAsciispaceInplace(t *testing.T) {
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{
+			in:   "",
+			want: "",
+		},
+		{
+			in:   "         ",
+			want: " ",
+		},
+		{
+			in:   "a",
+			want: "a",
+		},
+		{
+			in:   " a ",
+			want: " a ",
+		},
+		{
+			in:   "  a  b  c  d  ",
+			want: " a b c d ",
+		},
+		{
+			in:   " a ",
+			want: " a ",
+		},
+		{
+			in:   "X\u0020\u00A0\u1680\u2000\u2001\u2002X\u2003X\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205FX\u3000X",
+			want: "X X X X X",
+		},
+	}
+
+	for _, test := range tests {
+		bIn := []byte(test.in)
+		bWant := []byte(test.want)
+
+		got := asciispaceInplace(bIn)
+
+		if !reflect.DeepEqual(bWant, got) {
+			t.Errorf("asciispaceInplace(%v)=%v, want %v", bIn, got, bWant)
 		}
 	}
 
