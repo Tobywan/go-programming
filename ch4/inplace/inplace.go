@@ -68,3 +68,40 @@ func rotate(s []string, n int) []string {
 	r = reverse(r)
 	return r
 }
+
+// rotateOnce shift the elements to the left by n and puts the over flowed ones back on the right
+// exercise 4.4
+func rotateOnce(s []string, n int) []string {
+	l := len(s)
+	if l <= 1 {
+		return s
+	}
+
+	m := n % l // Deal with n  > l
+	if m == 0 {
+		return s
+	}
+	// Append the beginning to the end
+	s = append(s, s[:m]...)
+	return s[m:]
+}
+
+// dedupe removes adjacent dupicates in a string slice
+//
+func dedupe(strings []string) []string {
+
+	if len(strings) <= 1 {
+		// no duplicates
+		return strings
+	}
+	last := strings[0]
+	i := 1
+	for _, s := range strings[1:] {
+		if s != last {
+			strings[i] = s
+			last = s
+			i++
+		}
+	}
+	return strings[:i]
+}

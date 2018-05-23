@@ -219,3 +219,139 @@ func TestRotate(t *testing.T) {
 	}
 
 }
+
+func BenchmarkRotate(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		rotate([]string{"1", "2", "3", "4", "5"}, 4)
+	}
+}
+
+func BenchmarkRotateOnce(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		rotateOnce([]string{"1", "2", "3", "4", "5"}, 4)
+	}
+}
+
+func TestRotateOnce(t *testing.T) {
+	tests := []struct {
+		in   []string
+		n    int
+		want []string
+	}{
+		{
+			[]string{""},
+			8,
+			[]string{""},
+		},
+		{
+			[]string{"a"},
+			0,
+			[]string{"a"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			1,
+			[]string{"2", "3", "4", "5", "1"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			2,
+			[]string{"3", "4", "5", "1", "2"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			3,
+			[]string{"4", "5", "1", "2", "3"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			4,
+			[]string{"5", "1", "2", "3", "4"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			5,
+			[]string{"1", "2", "3", "4", "5"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			6,
+			[]string{"2", "3", "4", "5", "1"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			7,
+			[]string{"3", "4", "5", "1", "2"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			8,
+			[]string{"4", "5", "1", "2", "3"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			9,
+			[]string{"5", "1", "2", "3", "4"},
+		},
+		{
+			[]string{"1", "2", "3", "4", "5"},
+			10,
+			[]string{"1", "2", "3", "4", "5"},
+		},
+	}
+
+	for _, test := range tests {
+
+		got := rotateOnce(test.in, test.n)
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("rotate(%q,%d)=%q, want:%q", test.in, test.n, got, test.want)
+		}
+	}
+
+}
+
+func TestDeDupe1(t *testing.T) {
+	tests := []struct {
+		in   []string
+		want []string
+	}{
+		{
+			[]string{"a"},
+			[]string{"a"},
+		},
+		{
+			[]string{},
+			[]string{},
+		},
+		{
+			[]string{"a", "b"},
+			[]string{"a", "b"},
+		},
+		{
+			[]string{"a", "b", "b"},
+			[]string{"a", "b"},
+		},
+		{
+			[]string{"1", "2", "2", "3", "3"},
+			[]string{"1", "2", "3"},
+		},
+		{
+			[]string{"1", "1", "1", "1", "1"},
+			[]string{"1"},
+		},
+		{
+			[]string{"1", "1", "1", "1", "3"},
+			[]string{"1", "3"},
+		},
+	}
+
+	for _, test := range tests {
+		got := dedupe(test.in)
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("dedupe(%q)=%q, want:%q", test.in, got, test.want)
+		}
+	}
+
+}
